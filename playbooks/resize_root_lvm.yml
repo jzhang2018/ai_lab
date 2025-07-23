@@ -1,0 +1,55 @@
+--- 
+
+# This is for Red Hat-based systems using LVM and XFS
+# Back up your VM before running
+# Make sure the unallocated disk space exists (e.g., from a previous disk expansion)
+
+- name: Resize root LVM volume to use full disk
+  hosts: llm_node
+  become: true
+  vars:
+    disk_device: /dev/nvme0n1
+    lvm_partition: /dev/nvme0n1p3
+    lv_path: /dev/mapper/rhel-root
+
+  tasks:
+    - name: Install required packages
+      package:
+        name:
+          - cloud-utils-growpart
+          - lvm2
+        state: present
+
+    - name: Grow the partition (assumes partition 3 is LVM)
+      command: "growpart {{ disk_device }} 3"
+      register: growpart_result
+      changed_when: "'CHANGED' in growpart_result.stdout"
+
+    - name: Re-read partition table
+      command: partprobe
+
+    - name: Refresh LVM device cache (in case of system.devices issue)
+      file:
+        path: /etc/lvm/devices/system.devices
+        state: absent
+
+    - name: Rescan physical volumes
+      command: pvscan --cache
+
+    - name: Resize the physical volume
+      command: pvresize {{ lvm_partition }}
+      register: pvresize_result
+      changed_when: "'resized' in pvresize_result.stdout"
+
+    - name: Extend the root logical volume and resize the filesystem
+      command: lvextend -r -l +100%FREE {{ lv_path }}
+      register: lvextend_result
+      changed_when: "'successfully resized' in lvextend_result.stdout or 'Logical volume' in lvextend_result.stdout"
+
+    - name: Show new disk usage
+      command: df -h /
+      register: df_output
+
+    - name: Display result
+      debug:
+        msg: "{{ df_output.stdout }}"

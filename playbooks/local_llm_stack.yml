@@ -1,0 +1,8 @@
+---
+- name: Install Local LLM DevOps Agent Stack on RHEL 9
+  hosts: local_llm
+  gather_facts: true
+  become: false
+
+  roles:
+    - roles/llm_stack

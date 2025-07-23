@@ -1,0 +1,43 @@
+---
+
+- name: Remove podman-docker to prevent conflict with Docker CE
+  ansible.builtin.dnf:
+    name: podman-docker
+    state: absent
+  become: true
+
+- name: Install required packages
+  ansible.builtin.dnf:
+    name:
+      - dnf-utils
+      - device-mapper-persistent-data
+      - lvm2
+    state: present
+  become: true
+
+- name: Add Docker CE repository
+  ansible.builtin.get_url:
+    url: https://download.docker.com/linux/centos/docker-ce.repo
+    dest: /etc/yum.repos.d/docker-ce.repo
+  become: true
+
+- name: Enable Docker CE stable repo
+  ansible.builtin.command: dnf config-manager --enable docker-ce-stable
+  become: true
+  changed_when: false
+
+- name: Install Docker CE
+  ansible.builtin.dnf:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+    state: latest
+  become: true
+
+- name: Start and enable Docker service
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: true
+  become: true

@@ -1,0 +1,19 @@
+---
+
+# ------------------ Install Open WebUI ------------------ #
+- name: Include install docker task file
+  ansible.builtin.include_tasks: install_docker.yml
+
+# it might take a while
+- name: Run Open WebUI container
+  community.docker.docker_container:
+    name: open-webui
+    image: ghcr.io/open-webui/open-webui:main
+    ports:
+      - "3000:8080"
+    volumes:
+      - open-webui-data:/app/backend/data
+    env:
+      OLLAMA_BASE_URL: "http://{{ hostvars['llm_node']['ansible_host'] }}:11434"  # connect to Ollama listening url
+    restart_policy: always
+  become: true

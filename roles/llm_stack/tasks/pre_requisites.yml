@@ -1,0 +1,34 @@
+---
+
+# ----------------- Open firewall port for Ollama -------------------- #
+- name: Open firewall port for Ollama (11434)
+  ansible.builtin.firewalld:
+    port: 11434/tcp
+    permanent: yes
+    state: enabled
+    immediate: yes
+  become: true
+
+# ------------ Install custom Python (> 3.9) -------------- # 
+- name: Install upgrade version of Python3 from AppStream - {{ upgrade_python3 }}
+  ansible.builtin.dnf:
+    name: "python{{ upgrade_python3 }}"
+    state: present
+  become: true
+  
+- name: Verify Python version {{ upgrade_python3 }}
+  ansible.builtin.command: python{{ upgrade_python3 }} --version
+  register: python_version_check
+  failed_when: "'Python ' ~ upgrade_python3 not in python_version_check.stdout"
+  changed_when: false
+
+- name: Get the full path to python{{ upgrade_python3 }}
+  ansible.builtin.command: command -v python"{{ upgrade_python3 }}"
+  register: upgrade_python3_path
+  changed_when: false
+  failed_when: "upgrade_python3_path.rc != 0"
+
+- name: Debug - Version check and path of Python{{ upgrade_python3 }}
+  ansible.builtin.debug:
+    msg: "Upgrade Python3 version is {{ python_version_check.stdout }} 
+          and the path is {{ upgrade_python3_path.stdout }}"

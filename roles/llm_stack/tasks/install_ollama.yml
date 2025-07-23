@@ -1,0 +1,61 @@
+---
+
+# ------------------ Install Ollama ------------------ #
+
+- name: Check if Ollama is already installed
+  ansible.builtin.command: ollama --version
+  register: ollama_check
+  ignore_errors: true
+  changed_when: false
+
+- name: Ollama is already installed 
+  ansible.builtin.debug:
+    msg: "Ollama is already installed: {{ ollama_check.stdout_lines }}"
+  when: ollama_check.rc == 0
+
+- block:
+  - name: Install Ollama if not present
+    ansible.builtin.shell: |
+      curl -fsSL https://ollama.com/install.sh | sh
+    args:
+      executable: /bin/bash
+    become: true  # it is recommanded to install Ollama as root as it is set up as a systemd service
+    
+  - name: Verify Ollama is installed
+    ansible.builtin.command: ollama --version
+    register: ollama_version
+    ignore_errors: true
+
+  - name: Display Ollama version
+    ansible.builtin.debug:
+      msg: "Ollama version: {{ ollama_version.stdout }}"
+  when: ollama_check.rc != 0
+
+# allow Ollama to listen on all interfaces (0.0.0.0)
+- name: Set OLLAMA_HOST environment variable in ollama service
+  become: true
+  ansible.builtin.lineinfile:
+    path: /etc/systemd/system/ollama.service
+    regexp: '^Environment=OLLAMA_HOST='
+    line: 'Environment=OLLAMA_HOST=0.0.0.0'
+    insertafter: '\[Service\]'
+    create: true
+
+- name: Reload systemd
+  become: true
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Restart ollama service
+  become: true
+  ansible.builtin.systemd:
+    name: ollama
+    state: restarted
+
+- name: Ensure Ollama service is running
+  become: true
+  ansible.builtin.systemd:
+    name: ollama
+    state: started
+    enabled: true
+  
