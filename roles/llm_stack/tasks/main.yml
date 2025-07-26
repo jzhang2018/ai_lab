@@ -1,27 +1,22 @@
 ---
 # tasks file for llm_stack
 
-# ------------------- Run pre-requisites tasks ------------------- #
-- name: Run pre-requisites tasks
-  ansible.builtin.include_tasks: pre_requisites.yml
-
-# ------------ Install Poetry (non-root user scope) -------------- #
-- name: Run install poetry tasks
-  ansible.builtin.include_tasks: install_poetry.yml
-
-# -------- Install smol-developer (non-root user scope) ---------- #
-- name: Run install smol-developer tasks
-  ansible.builtin.include_tasks: install_smol-developer.yml
-
 # ------------------ Install Ollama ------------------ #
 - name: Run install Ollama tasks
   ansible.builtin.include_tasks: install_ollama.yml
 
-# ------------------ Pull CodeLlama and run a test ------------------ #
-- name: Run pull CodeLlama model tasks
-  ansible.builtin.include_tasks: pull_codeLlama.yml
+# ------------------ Pull Codellama and run a test ------------------ #
+- name: Run pull Codellama model tasks
+  ansible.builtin.include_tasks: pull_codellama.yml
+
+# -------- Install smol-agent (non-root user scope) ---------- #
+- name: Run install smol-agent tasks
+  ansible.builtin.include_tasks: install_smol-agent.yml
 
 # ------------------ Install Open WebUI ------------------ #
 - name: Run install Open WebUI tasks
   ansible.builtin.include_tasks: install_openwebui.yml
-  
+
+# ------------------ Assertions ------------------ #
+- name: Run smol-agent assertion
+  ansible.builtin.include_tasks: assert_smol-agent.yml

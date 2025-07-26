@@ -1,0 +1,9 @@
+---
+# tasks file for pre_requisites
+
+# ------------------- Run pre-requisites tasks ------------------- #
+- name: Run pre-requisites tasks
+  ansible.builtin.include_tasks: pre_requisites.yml
+
+- name: Include install docker task file
+  ansible.builtin.include_tasks: install_docker.yml

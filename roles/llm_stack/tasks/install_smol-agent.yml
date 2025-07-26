@@ -1,0 +1,24 @@
+---
+
+# ------------------ Install smol-agent ------------------ #
+- name: Create a virtual environment for smol-agent using python{{ upgrade_python3 }}
+  ansible.builtin.command: python{{ upgrade_python3 }} -m venv {{ ansible_env.HOME }}/work/smol-agent-venv
+  args:
+    creates: "{{ ansible_env.HOME }}/work/smol-agent-venv/bin/activate"
+  become: false
+
+- name: Install smol-agent from GitHub in the virtualenv
+  ansible.builtin.pip:
+    virtualenv: "{{ ansible_env.HOME }}/work/smol-agent-venv"
+    name: git+https://github.com/huggingface/smolagents.git
+  become: false
+
+- name: Create a launcher script for smolagent
+  ansible.builtin.copy:
+    dest: /usr/local/bin/smolagent
+    mode: '0755'
+    content: |
+      #!/bin/bash
+      source {{ ansible_env.HOME }}/work/smol-agent-venv/bin/activate
+      exec {{ ansible_env.HOME }}/work/smol-agent-venv/bin/smolagent "$@"
+  become: true

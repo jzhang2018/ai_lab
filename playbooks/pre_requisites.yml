@@ -1,0 +1,16 @@
+---
+
+- name: Upgrade Python to {{ upgrade_python3 }}
+  hosts: local_llm
+  gather_facts: false  
+  tasks:
+    - name: Upgrade Python via raw to {{ upgrade_python3 }}
+      ansible.builtin.include_tasks: upgrade_python3_raw.yml
+      
+- name: Pre-requisites tasks
+  hosts: local_llm
+  gather_facts: true
+  vars:
+    ansible_python_interpreter: /usr/bin/python{{ upgrade_python3 }}
+  roles:
+    - roles/pre_requisites

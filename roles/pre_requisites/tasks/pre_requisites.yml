@@ -1,0 +1,51 @@
+---
+
+- name: Get the full path to python{{ upgrade_python3 }}
+  ansible.builtin.command: command -v python"{{ upgrade_python3 }}"
+  register: upgrade_python3_path
+  changed_when: false
+  failed_when: "upgrade_python3_path.rc != 0"
+
+# ------------ Get pip3.xx executable path -------------- #
+- name: Get pip executable path for python{{ upgrade_python3 }}
+  ansible.builtin.command: >
+    {{ upgrade_python3_path.stdout }}
+    -c "import sysconfig, os; print(os.path.join(sysconfig.get_path('scripts'), 'pip{{ upgrade_python3 }}'))"
+  register: pip_executable_path
+  changed_when: false
+
+# ------------ Install Python packages ------------- #
+- name: Install Docker SDK for Python{{ upgrade_python3 }}
+  ansible.builtin.pip:
+    name: "{{ item }}"
+    executable: "{{ pip_executable_path.stdout }}"
+  loop:
+    - docker
+    - virtualenv
+    - requests
+    - firewall
+  become: true
+
+# ------------ Create project directories ------------ # 
+- name: Create project directories
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/{{ item }}"
+    state: directory
+    mode: '0755'
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+  loop:
+    - code  # for source code
+    - venv  # for python virtual environment
+    - work  # for other project related if needed
+
+# ----------------- Open firewall port for Ollama -------------------- #
+- name: Open firewall port for Ollama (11434)
+  ansible.builtin.firewalld:
+    port: 11434/tcp
+    permanent: yes
+    state: enabled
+    immediate: yes
+  become: true
+  vars:
+    ansible_python_interpreter: "{{ ansible_facts.discovered_interpreter_python }}"  # older system level python (Red Had 9)

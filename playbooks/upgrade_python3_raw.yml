@@ -1,0 +1,40 @@
+---
+
+# ------------ Install custom Python (> 3.9) with raw (no need define ansible_python_interpreter) ------------ #   
+- name: Install upgraded Python via raw (no Python needed)
+  raw: dnf install -y python"{{ upgrade_python3 }}"
+  become: true
+
+- name: Verify Python version {{ upgrade_python3 }}
+  ansible.builtin.command: python{{ upgrade_python3 }} --version
+  register: python_version_check
+  failed_when: "'Python ' ~ upgrade_python3 not in python_version_check.stdout"
+  changed_when: false
+
+- name: Get the full path to python{{ upgrade_python3 }}
+  ansible.builtin.command: command -v python"{{ upgrade_python3 }}"
+  register: upgrade_python3_path
+  changed_when: false
+  failed_when: "upgrade_python3_path.rc != 0"
+
+- name: Debug - version and path of Python{{ upgrade_python3 }}
+  ansible.builtin.debug:
+    msg: "Python has been upgraded to {{ python_version_check.stdout }} and the path is {{ upgrade_python3_path.stdout }}"
+
+- name: Bootstrap pip if missing for Python {{ upgrade_python3 }}
+  ansible.builtin.raw: "{{ upgrade_python3_path.stdout }} -m ensurepip --upgrade"
+  become: true
+
+- name: Get pip version for Python {{ upgrade_python3 }}
+  ansible.builtin.raw: "{{ upgrade_python3_path.stdout }} -m pip --version"
+  register: pip_check
+  changed_when: false
+  
+- name: Upgrade pip to the latest for Python {{ upgrade_python3 }}
+  ansible.builtin.command: "{{ upgrade_python3_path.stdout }} -m pip install --upgrade pip"
+  register: pip_upgrade
+  become: true
+  
+- name: Debug - version check of pip for Python{{ upgrade_python3 }}
+  ansible.builtin.debug: 
+    msg: "Python{{ upgrade_python3 }} pip version: {{ pip_upgrade.stdout }}"    

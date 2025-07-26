@@ -1,11 +1,9 @@
 ---
 
 # ------------------ Install Ollama ------------------ #
-
-- name: Check if Ollama is already installed
-  ansible.builtin.command: ollama --version
+- name: Check if Ollama is installed via --version
+  ansible.builtin.shell: ollama --version 2>/dev/null || true
   register: ollama_check
-  ignore_errors: true
   changed_when: false
 
 - name: Ollama is already installed 
@@ -58,4 +56,3 @@
     name: ollama
     state: started
     enabled: true
-  

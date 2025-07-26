@@ -1,0 +1,25 @@
+---
+
+- name: Ensure work directory exists
+  file:
+    path: "{{ ansible_env.HOME }}/work"
+    state: directory
+    mode: '0755'
+
+- name: Basic verification for smol-agent before LLM integration (smolagent --help)
+  shell: '"{{ ansible_env.HOME }}"/work/smol-agent-venv/bin/smolagent --help'
+  args:
+    chdir: "{{ ansible_env.HOME }}/work"
+  environment:
+    PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}"
+  register: smol_agent_result
+  changed_when: false
+
+- name: Assert 'smolagent --help'
+  assert:
+    that:
+      - smol_agent_result.rc == 0
+      - smol_agent_result.stdout | length > 1
+    fail_msg: "Assertion FAILED: smol-agent returned empty or too short output"
+    success_msg: "Assertion PASSED - smol-agent returned something: {{ smol_agent_result.stdout}}"
+
