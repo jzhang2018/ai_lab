@@ -8,7 +8,15 @@
 
 - name: Determine if Ollama is installed
   ansible.builtin.set_fact:
-    ollama_installed: "{{ ollama_check.stdout is match('^Ollama\\s+\\d+') }}"
+    ollama_installed: "{{ ollama_check.stdout is match('^ollama version is \\d+\\.\\d+\\.\\d+') }}"
+
+- name: Debug - ollama version check
+  ansible.builtin.debug: 
+    msg: "{{ ollama_check.stdout }}"
+
+- name: Debug - Is ollama installed?
+  ansible.builtin.debug: 
+    msg: "{{ ollama_installed }}"
 
 - block:
   - name: Install Ollama if not present. It might take a while ...

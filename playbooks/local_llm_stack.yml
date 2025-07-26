@@ -4,7 +4,6 @@
   hosts: local_llm
   gather_facts: true
   become: false
-  # vars:
-  #   ansible_python_interpreter: /usr/bin/python{{ upgrade_python3 }}
+ 
   roles:
     - roles/llm_stack
