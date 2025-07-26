@@ -6,13 +6,12 @@
   register: ollama_check
   changed_when: false
 
-- name: Ollama is already installed 
-  ansible.builtin.debug:
-    msg: "Ollama is already installed: {{ ollama_check.stdout_lines }}"
-  when: ollama_check.rc == 0
+- name: Determine if Ollama is installed
+  ansible.builtin.set_fact:
+    ollama_installed: "{{ ollama_check.stdout is match('^Ollama\\s+\\d+') }}"
 
 - block:
-  - name: Install Ollama if not present
+  - name: Install Ollama if not present. It might take a while ...
     ansible.builtin.shell: |
       curl -fsSL https://ollama.com/install.sh | sh
     args:
@@ -27,17 +26,26 @@
   - name: Display Ollama version
     ansible.builtin.debug:
       msg: "Ollama version: {{ ollama_version.stdout }}"
-  when: ollama_check.rc != 0
+  when: not ollama_installed
 
 # allow Ollama to listen on all interfaces (0.0.0.0)
-- name: Set OLLAMA_HOST environment variable in ollama service
+- name: Ensure Ollama systemd override dir exists
+  ansible.builtin.file:
+    path: /etc/systemd/system/ollama.service.d
+    state: directory
+    mode: '0755'
   become: true
-  ansible.builtin.lineinfile:
-    path: /etc/systemd/system/ollama.service
-    regexp: '^Environment=OLLAMA_HOST='
-    line: 'Environment=OLLAMA_HOST=0.0.0.0'
-    insertafter: '\[Service\]'
-    create: true
+
+- name: Set OLLAMA_HOST via systemd override
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/ollama.service.d/override.conf
+    content: |
+      [Service]
+      Environment=OLLAMA_HOST=0.0.0.0
+    mode: '0644'
+    owner: root
+    group: root
+  become: true
 
 - name: Reload systemd
   become: true

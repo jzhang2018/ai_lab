@@ -10,7 +10,7 @@
   ansible.builtin.shell: ollama pull codellama:"{{ ollama_model }}"
   when: ollama_models.stdout is not search("codellama:\\s+" + ollama_model)
 
-- name: Run a test prompt with CodeLlama, it might take a while...
+- name: Run a test prompt with CodeLlama. It might take a while...
   ansible.builtin.shell: |
     echo 'Hello world!' | ollama run codellama:"{{ ollama_model }}"
   register: codellama_test

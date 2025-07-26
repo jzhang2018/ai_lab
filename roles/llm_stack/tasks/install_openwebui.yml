@@ -1,7 +1,7 @@
 ---
 
 # ------------------ Install Open WebUI ------------------ #
-- name: Run Open WebUI container, it might take a while...
+- name: Run Open WebUI container. It might take a while...
   community.docker.docker_container:
     name: open-webui
     image: ghcr.io/open-webui/open-webui:main
