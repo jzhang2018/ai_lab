@@ -1,0 +1,24 @@
+from smolagents import LiteLLMModel, CodeAgent
+
+# Initialize the LiteLLMModel with your Ollama model details
+model = LiteLLMModel(
+    model_id="ollama/{{ ollama_model }}",
+    api_base="http://{{ hostvars['llm_node']['ansible_host'] }}:11434",
+    api_key="",  # usually empty for local Ollama
+    num_ctx=4096
+)
+
+# Create a CodeAgent using the LiteLLMModel
+agent = CodeAgent(
+    model=model,
+    max_steps={{ max_steps | int }},
+    tools=[]  # no tools needed for now
+)
+
+# Prompt from variable, fallback to default
+prompt = "{{ agentic_prompt | default('Write a Python script that prints \"Hello from the agent!\"') }}"
+
+# Run the agent with streaming output
+for chunk in agent.run(prompt, stream=True):
+    if hasattr(chunk, "output") and chunk.output:
+        print(chunk.output)

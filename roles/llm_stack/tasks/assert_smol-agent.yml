@@ -1,15 +1,15 @@
 ---
 
-- name: Ensure work directory exists
+- name: Ensure virtual environment directory exists
   file:
-    path: "{{ ansible_env.HOME }}/work"
+    path: "{{ ansible_env.HOME }}/venv"
     state: directory
     mode: '0755'
 
 - name: Basic verification for smol-agent before LLM integration (smolagent --help)
-  shell: '"{{ ansible_env.HOME }}"/work/smol-agent-venv/bin/smolagent --help'
+  shell: '"{{ ansible_env.HOME }}"/venv/smol-agent-venv/bin/smolagent --help'
   args:
-    chdir: "{{ ansible_env.HOME }}/work"
+    chdir: "{{ ansible_env.HOME }}/venv"
   environment:
     PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}"
   register: smol_agent_result

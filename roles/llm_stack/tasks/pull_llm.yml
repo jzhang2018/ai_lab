@@ -1,0 +1,26 @@
+---
+
+# ------------------ Pull LLM and run a test ------------------ #
+- name: Check if LLM is already pulled
+  ansible.builtin.command: ollama list
+  register: ollama_models
+  changed_when: false
+
+- name: Debug - display if LLM is present or not
+  ansible.builtin.debug:
+    msg: "{{ ollama_model }} local presence is: {{ ollama_models.stdout }}"
+
+- name: Pull LLM if not present. It might take a while...
+  ansible.builtin.shell: ollama pull "{{ ollama_model }}"
+  when: ollama_models.stdout is not search(ollama_model)
+
+# - name: Run a test prompt with LLM. It might take a while...
+#   ansible.builtin.shell: |
+#     echo 'Hello world!' | ollama run codellama:"{{ ollama_model }}"
+#   register: codellama_test
+#   changed_when: false
+#   failed_when: codellama_test.rc != 0
+
+# - name: Show model output
+#   ansible.builtin.debug:
+#     msg: "{{ codellama_test.stdout | truncate(2000) }}"

@@ -4,14 +4,23 @@
 - name: Create a virtual environment for smol-agent using python{{ upgrade_python3 }}
   ansible.builtin.command: python{{ upgrade_python3 }} -m venv {{ ansible_env.HOME }}/work/smol-agent-venv
   args:
-    creates: "{{ ansible_env.HOME }}/work/smol-agent-venv/bin/activate"
+    creates: "{{ ansible_env.HOME }}/venv/smol-agent-venv/bin/activate"
   become: false
 
-- name: Install smol-agent from GitHub in the virtualenv
+- name: Install smolagents and required dependencies inside virtualenv
   ansible.builtin.pip:
-    virtualenv: "{{ ansible_env.HOME }}/work/smol-agent-venv"
-    name: git+https://github.com/huggingface/smolagents.git
-  become: false
+    name: "{{ smolagent_dependencies }}"
+    virtualenv: "{{ ansible_env.HOME }}/venv/smol-agent-venv"
+    virtualenv_python: "python{{ upgrade_python3 }}"
+    state: present
+
+- name: Render ollama_agent.py with Local LLM node IP
+  ansible.builtin.template:
+    src: ollama_agent.py.j2
+    dest: "{{ ansible_env.HOME }}/work/ollama_agent.py"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
 
 - name: Create a launcher script for smolagent
   ansible.builtin.copy:
@@ -19,6 +28,6 @@
     mode: '0755'
     content: |
       #!/bin/bash
-      source {{ ansible_env.HOME }}/work/smol-agent-venv/bin/activate
-      exec {{ ansible_env.HOME }}/work/smol-agent-venv/bin/smolagent "$@"
+      source {{ ansible_env.HOME }}/venv/smol-agent-venv/bin/activate
+      exec {{ ansible_env.HOME }}/venv/smol-agent-venv/bin/smolagent "$@"
   become: true

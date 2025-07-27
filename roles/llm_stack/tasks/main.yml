@@ -5,11 +5,11 @@
 - name: Run install Ollama tasks
   ansible.builtin.include_tasks: install_ollama.yml
 
-# ------------------ Pull Codellama and run a test ------------------ #
-- name: Run pull Codellama model tasks
-  ansible.builtin.include_tasks: pull_codellama.yml
+# ------------------ Pull LLM ------------------ #
+- name: Run pull LLM tasks
+  ansible.builtin.include_tasks: pull_llm.yml
 
-# -------- Install smol-agent (non-root user scope) ---------- #
+# -------- Install smol-agent (non-root user scope) -------- #
 - name: Run install smol-agent tasks
   ansible.builtin.include_tasks: install_smol-agent.yml
 
