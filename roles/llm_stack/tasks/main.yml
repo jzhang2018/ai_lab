@@ -20,3 +20,7 @@
 # ------------------ Assertions ------------------ #
 - name: Run smol-agent assertion
   ansible.builtin.include_tasks: assert_smol-agent.yml
+
+# ------------------ Summary ------------------ #
+- name: Run summary
+  ansible.builtin.include_tasks: summary.yml

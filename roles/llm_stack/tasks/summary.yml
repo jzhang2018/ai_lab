@@ -1,0 +1,14 @@
+---
+
+- name: LLM Lab Summary
+  ansible.builtin.debug:
+    msg:
+      - "LLM Lab Summary:"
+      - "-------------------------------------------------------------------------"
+      - "LLM: {{ ollama_model }}"
+      - "Ollama endpoint: POST http://{{ hostvars['llm_node']['ansible_host'] }}:11434/api/generate"
+      - "Open WebUI url: http://{{ hostvars['llm_node']['ansible_host'] }}:3000"
+      - "Run sample agent script on remote host {{ hostvars['llm_node']['ansible_host'] }}:"
+      - "  source {{ ansible_env.HOME }}/venv/smol-agent-venv/bin/activate"
+      - "  python {{ ansible_env.HOME }}/home/iacuser/work/ollama_agent.py"
+      - "-------------------------------------------------------------------------"
