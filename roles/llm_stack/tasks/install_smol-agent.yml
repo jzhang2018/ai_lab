@@ -2,7 +2,7 @@
 
 # ------------------ Install smol-agent ------------------ #
 - name: Create a virtual environment for smol-agent using python{{ upgrade_python3 }}
-  ansible.builtin.command: python{{ upgrade_python3 }} -m venv {{ ansible_env.HOME }}/work/smol-agent-venv
+  ansible.builtin.command: python{{ upgrade_python3 }} -m venv {{ ansible_env.HOME }}/venv/smol-agent-venv
   args:
     creates: "{{ ansible_env.HOME }}/venv/smol-agent-venv/bin/activate"
   become: false

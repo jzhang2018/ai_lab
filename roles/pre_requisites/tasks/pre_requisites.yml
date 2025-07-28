@@ -35,7 +35,6 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
   loop:
-    - code  # for source code
     - venv  # for python virtual environment
     - work  # for other project related if needed
 

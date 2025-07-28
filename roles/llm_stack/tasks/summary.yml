@@ -10,5 +10,5 @@
       - "Open WebUI url: http://{{ hostvars['llm_node']['ansible_host'] }}:3000"
       - "Run sample agent script on remote host {{ hostvars['llm_node']['ansible_host'] }}:"
       - "  source {{ ansible_env.HOME }}/venv/smol-agent-venv/bin/activate"
-      - "  python {{ ansible_env.HOME }}/home/iacuser/work/ollama_agent.py"
+      - "  python {{ ansible_env.HOME }}/work/ollama_agent.py"
       - "-------------------------------------------------------------------------"
