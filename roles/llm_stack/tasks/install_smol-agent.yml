@@ -16,11 +16,14 @@
 
 - name: Render ollama_agent.py with Local LLM node IP
   ansible.builtin.template:
-    src: ollama_agent.py.j2
-    dest: "{{ ansible_env.HOME }}/work/ollama_agent.py"
+    src: "{{ item.src }}"
+    dest: "{{ ansible_env.HOME }}/work/{{ item.dest }}"
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: '0755'
+  loop:
+    - { src: 'openai_agent.py.j2', dest: 'openai_agent.py' }
+    - { src: 'ollama_agent.py.j2', dest: 'ollama_agent.py' }
 
 - name: Create a launcher script for smolagent
   ansible.builtin.copy:
