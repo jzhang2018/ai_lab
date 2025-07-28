@@ -14,5 +14,5 @@ agent = CodeAgent(
 )
 
 # Prompt and responses
-response = agent.run("Only write a simple Python function that takes two numbers and returns their sum. Do not use web or external tools.")
+response = agent.run("{{ agentic_prompt | default('Write a Python script that prints \"Hello from the agent!\"') }}")
 print(response)
