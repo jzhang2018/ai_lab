@@ -12,6 +12,7 @@
     name: "{{ smolagent_dependencies }}"
     virtualenv: "{{ ansible_env.HOME }}/venv/smol-agent-venv"
     virtualenv_python: "python{{ upgrade_python3 }}"
+    extra_args: "--upgrade --force-reinstall"
     state: present
 
 - name: Render ollama_agent.py with Local LLM node IP
