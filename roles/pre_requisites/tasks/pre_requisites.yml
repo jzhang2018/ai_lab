@@ -48,3 +48,23 @@
   become: true
   vars:
     ansible_python_interpreter: "{{ ansible_facts.discovered_interpreter_python }}"  # older system level python (Red Had 9)
+
+# ----------------------------- Install Dev Tools --------------------------- #
+- name: Install EPEL GPG key
+  become: true
+  ansible.builtin.rpm_key:
+    key: https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-9
+    state: present
+
+- name: Install EPEL repository on RHEL 9
+  become: true
+  ansible.builtin.dnf:
+    name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+    state: present
+
+- name: Install Dev Tools
+  become: true
+  ansible.builtin.yum:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ dev_tools }}"
