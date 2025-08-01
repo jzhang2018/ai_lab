@@ -68,3 +68,10 @@
     name: "{{ item }}"
     state: present
   loop: "{{ dev_tools }}"
+
+# ----------------------------- Install Dev Tools --------------------------- #
+- name: Install sshpass
+  become: true
+  ansible.builtin.yum:
+    name: sshpass
+    state: present
